@@ -573,8 +573,9 @@ export default {
 </script>
 
 <style lang="less">
-html{
-  overflow:auto;
+body{
+  min-width:1024px;
+  overflow-x:auto;
 }
 *{
   box-sizing:border-box;
@@ -620,7 +621,7 @@ h2{
   font-size:18px;
 }
 .page{
-  max-width:1200px;
+  // max-width:1200px;
   margin:0 auto;
 }
 .settings{
@@ -754,11 +755,11 @@ h2{
   min-width:1px;
   font-size:13px;
 }
-.grids{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-}
+// .grids{
+//   display:flex;
+//   flex-direction:column;
+//   align-items:center;
+// }
 .file-label{
   display:flex;
   flex-direction:column;

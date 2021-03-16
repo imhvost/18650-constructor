@@ -243,12 +243,13 @@ export default {
 .grid-wrapp{
   position:relative;
   padding:50px;
+  display:inline-block;
   &:last-child{
     margin-bottom:0;
   }
 }
 .grid{
-  display:grid;
+  display:inline-grid;
   // grid-template-columns:repeat(15, 60px);
   // grid-template-rows:repeat(5, 60px);
   &.reverse{
