@@ -13,6 +13,7 @@
           <span>Import from JSON file</span>
         </label>
         <button @click="getDemoData()">Get Demo Data</button>
+        <a href="https://github.com/imhvost/18650-constructor" target="_blanh">Github</a>
       </div>
       <div class="battery">
         <h2 class="title">Battery</h2>
@@ -544,6 +545,9 @@ export default {
            updateStorage()
         })
     }
+    const urlParams = new URLSearchParams(window.location.search);
+    const demo = urlParams.get('demo');
+    if(demo === '1') getDemoData();
 
     return {
       cells,
