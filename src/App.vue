@@ -51,6 +51,7 @@
               @click.prevent="changeCurrent('color', colorItem.color)"
               :class="colorItem.count === 0 ? 'disabled' : ''"
             >
+              <b>№{{index + 1}}</b>
               <span>{{colorItem.count}}</span>
             </a>
           </li>
@@ -140,6 +141,7 @@
 
 <script>
 import { ref } from "vue"
+import { useHead } from '@vueuse/head'
 import CellsGrid from './components/CellsGrid.vue'
 
 export default {
@@ -148,7 +150,23 @@ export default {
     CellsGrid
   },
   setup() {
-    // localStorage.clear();
+    localStorage.clear();
+    useHead({
+      title: '18650 Constructor',
+      htmlAttrs: {
+        lang: 'en'
+      },
+      meta: [
+        {
+          name: 'description',
+          content: 'Simple constructor for connecting 18650 cells into a battery. It is supposed to be soldered through the "bus" and "mustaches".',
+        },
+        {
+          name: 'viewport',
+          content: 'width=1024, initial-scale=1',
+        },
+      ],
+    })
     const storage = localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')) : {};
     const updateStorage = () => {
       const data = {
@@ -190,6 +208,7 @@ export default {
     const getCell = (gridArea) => {
       return {
         color: '',
+        index: '',
         polus: '',
         busbars: {
           normal: {
@@ -409,12 +428,15 @@ export default {
         cells.value[index].polus = current.value.polus;
         current.value.colorCount--;
         const colorItem = colors.value.find(item => item.color === current.value.color);
+        const colorItemIndex = colors.value.findIndex(item => item.color === current.value.color);
+        cells.value[index].index = colorItemIndex
         colorItem.count--;
         const currentColorCount = current.value.colorCount;
         cells.value[index].color = current.value.color;
         if(currentColorCount === 0) {
           const nextActiveColor = colors.value.find(item => item.count !== 0);
           current.value.color = nextActiveColor.color
+          current.value.polus = current.value.polus === '+' ? '-' : '+';
           current.value.colorCount = nextActiveColor.count
         }
       }
@@ -428,6 +450,7 @@ export default {
       current.value.colorCount = colorItem.count
       cells.value[index].color = '';
       cells.value[index].polus = '';
+      cells.value[index].index = '';
       updateStorage();
     }
 
@@ -679,7 +702,7 @@ h2{
   list-style:none;
   margin:-1px;
   li{
-    width:20%;
+    width:25%;
     padding:1px;
     &.active{
       a{
@@ -703,11 +726,23 @@ h2{
     font-size:12px;
     span{
       position:absolute;
-      right:0;
-      top:0;
+      right:1px;
+      bottom:1px;
       width:16px;
       height:16px;
-      border-radius:0 0 0 50%;
+      border-radius:50% 0 0 0;
+      background-color:rgba(255,255,255,.6);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+    }
+    b{
+      position:absolute;
+      left:1px;
+      top:1px;
+      width:32px;
+      height:16px;
+      border-radius:0 0 50% 0;
       background-color:#fff;
       display:flex;
       flex-direction:column;

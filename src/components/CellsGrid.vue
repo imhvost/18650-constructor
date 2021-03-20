@@ -120,6 +120,11 @@
             @contextmenu.prevent="$emit('clearCell', index)"
           >
             <div
+              v-if="cell.index !== ''"
+              class="cell-index">
+              {{cell.index + 1}}
+            </div>
+            <div
               class="polus"
               :class="setPolus(cell)"
             ></div>
@@ -141,8 +146,7 @@ export default {
     index: Number,
     cells: Array,
     reverse: Boolean,
-    areas: String,
-    // grid: Array
+    areas: String
   },
   emits: ['changeCell', 'clearCell', 'toggleBus', 'changeGrid', 'dropCell', 'toggleМustache', 'removeBus'],
   setup(props, { emit }) {
@@ -255,6 +259,11 @@ export default {
   &.reverse{
     transform:rotateX(180deg);
     margin:-50px 0 -20px;
+    .cell-index{
+      top:auto;
+      bottom:7px;
+      transform:rotateX(180deg);
+    }
   }
 }
 .grid-btns{
@@ -262,6 +271,7 @@ export default {
   display:flex;
   justify-content:center;
   align-items:center;
+  font-family:'Lucida Grande', sans-serif;
   button{
     border:0;
     margin:2px;
@@ -435,6 +445,19 @@ export default {
     }
   }
 }
+.cell-index{
+  position:absolute;
+  right:7px;
+  top:7px;
+  pointer-events:none;
+  font-size:12px;
+  font-weight:700;
+  z-index:6;
+  background-color:#fff;
+  border-radius:0 0 0 50%;
+  width:14px;
+  height:14px;
+}
 .polus{
   width:20px;
   height:20px;
@@ -473,6 +496,7 @@ export default {
   height:20px;
   background-color:#fff;
   display:none;
+  font-family:'Lucida Grande', sans-serif;
   &:before{
     content:'';
     position:absolute;
