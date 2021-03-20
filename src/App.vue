@@ -141,7 +141,6 @@
 
 <script>
 import { ref } from "vue"
-import { useHead } from '@vueuse/head'
 import CellsGrid from './components/CellsGrid.vue'
 
 export default {
@@ -150,23 +149,7 @@ export default {
     CellsGrid
   },
   setup() {
-    localStorage.clear();
-    useHead({
-      title: '18650 Constructor',
-      htmlAttrs: {
-        lang: 'en'
-      },
-      meta: [
-        {
-          name: 'description',
-          content: 'Simple constructor for connecting 18650 cells into a battery. It is supposed to be soldered through the "bus" and "mustaches".',
-        },
-        {
-          name: 'viewport',
-          content: 'width=1024, initial-scale=1',
-        },
-      ],
-    })
+    // localStorage.clear();
     const storage = localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')) : {};
     const updateStorage = () => {
       const data = {
