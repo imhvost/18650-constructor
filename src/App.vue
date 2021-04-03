@@ -534,10 +534,11 @@ export default {
         updateStorage()
       }
     }
-    const getDemoData = () => {
+    const getDemoData = (file = '1.json') => {
       async function postData() {
-        const response = await fetch('http://18650-constructor.imhvost.top/demo.json', {
+        const response = await fetch(`http://18650-constructor.imhvost.top/${file}`, {
           mode: 'cors',
+          cache: 'no-cache'
         })
         return await response.json()
       }
@@ -554,6 +555,7 @@ export default {
     const urlParams = new URLSearchParams(window.location.search);
     const demo = urlParams.get('demo');
     if(demo === '1') getDemoData();
+    if(demo === '2') getDemoData('2.json');
 
     return {
       cells,
