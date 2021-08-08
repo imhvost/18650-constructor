@@ -536,7 +536,7 @@ export default {
     }
     const getDemoData = (file = '1.json') => {
       async function postData() {
-        const response = await fetch(`http://18650-constructor.imhvost.top/${file}`, {
+        const response = await fetch(`https://18650-constructor.imhvost.top/${file}`, {
           mode: 'cors',
           cache: 'no-cache'
         })
