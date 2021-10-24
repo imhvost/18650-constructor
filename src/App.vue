@@ -36,6 +36,16 @@
           </label>
         </div>
         <button @click="createGrid()">Create New grid</button>
+        <div
+          v-if="getTotalInfo()"
+          class="totals">
+          <div
+            v-if="getTotalInfo().busbars"
+            class="total">Total busbars: <b>{{getTotalInfo().busbars}}</b></div>
+          <div
+            v-if="getTotalInfo().mustaches"
+            class="total">Total mustaches: <b>{{getTotalInfo().mustaches}}</b></div>
+        </div>
       </div>
       <div class="colors">
         <h2 class="title">Elements Colors</h2>
@@ -107,8 +117,15 @@
     </section>
     <div class="grids">
       <section class="grids-section">
-        <h2 class="title">Back Side</h2>
+        <h2 class="title">
+          <span>Back Side <i>({{getGridSize().width}}/{{getGridSize().height}})</i></span>
+          <button @click="current.visibleBack ? changeCurrent('visibleBack', false) : changeCurrent('visibleBack', true)">
+            <template v-if="current.visibleBack">hide</template>
+            <template v-else>show</template>
+          </button>
+        </h2>
         <cells-grid
+          v-if="current.visibleBack"
           :areas="buildGridStyle()"
           :cells="cells"
           :reverse="true"
@@ -122,8 +139,15 @@
         </cells-grid>
       </section>
       <section class="grids-section">
-        <h2 class="title">Front Side</h2>
+        <h2 class="title">
+          <span>Front Side <i>({{getGridSize().width}}/{{getGridSize().height}})</i></span>
+          <button @click="current.visibleFront ? changeCurrent('visibleFront', false) : changeCurrent('visibleFront', true)">
+            <template v-if="current.visibleFront">hide</template>
+            <template v-else>show</template>
+          </button>
+        </h2>
         <cells-grid
+          v-if="current.visibleFront"
           :areas="buildGridStyle()"
           :cells="cells"
           @changeCell="changeCell"
@@ -151,6 +175,7 @@ export default {
   setup() {
     // localStorage.clear();
     const storage = localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')) : {};
+
     const updateStorage = () => {
       const data = {
         cells: cells.value,
@@ -224,8 +249,13 @@ export default {
       let areas = 'grid-template-areas:\'';
       areas += columns.join('\' \'');
       areas += '\';';
-      // console.log(areas)
       return areas;
+    }
+    const getGridSize = () => {
+      return {
+        width: grid.value[0].length,
+        height: grid.value.length
+      }
     }
     const changeGrid = params => {
       const [action, type, side] = params.split(' ');
@@ -381,13 +411,17 @@ export default {
     }
     const colors = ref(colorsArray)
 
-    const current = ref({
+
+    const current = storage.current ? ref(storage.current) : ref({
       color: colors.value[0].color,
       colorCount: colors.value[0].count,
-      polus: '-'
+      polus: '-',
+      visibleFront: true,
+      visibleBack: true
     });
     const changeCurrent = (name, value) => {
       current.value[name] = value;
+      updateStorage();
     }
     
     const changeColors = () => {
@@ -490,9 +524,42 @@ export default {
       updateStorage();
     }
 
+    const getTotalInfo = () => {
+      let busbars = 0;
+      let mustaches = 0;
+      cells.value.forEach(el => {
+        mustaches += el.busbars.normal.mustaches.length;
+        mustaches += el.busbars.reverse.mustaches.length;
+        if (el.busbars.normal.positions) {
+          el.busbars.normal.positions.forEach(position => {
+            if(position.includes('close')){
+              busbars += .5;
+            }else{
+              busbars++;
+            }
+          })
+        }
+        if (el.busbars.reverse.positions) {
+          el.busbars.reverse.positions.forEach(position => {
+            if(position.includes('close')){
+              busbars += .5;
+            }else{
+              busbars++;
+            }
+          })
+        }
+      })
+      if (busbars || mustaches) {
+        return {
+          busbars: busbars,
+          mustaches: mustaches
+        }
+      }
+    }
+
     const saveAsJSON = () => {
       const a = document.createElement('a')
-      console.log(localStorage.getItem('data'))
+      // console.log(localStorage.getItem('data'))
       const file = new Blob([localStorage.getItem('data')], {type: 'application/json'})
       a.href = URL.createObjectURL(file)
       a.download = Date.now() + '.json'
@@ -574,7 +641,9 @@ export default {
       removeBus,
       saveAsJSON,
       importFromJSON,
-      getDemoData
+      getDemoData,
+      getTotalInfo,
+      getGridSize
     }
   }
 }
@@ -621,6 +690,13 @@ input{
   text-align:center;
   margin-bottom:15px;
   font-weight:700;
+  span{
+    margin-right:10px;
+  }
+  button{
+    font-weight:400;
+    font-size:12px;
+  }
 }
 h1{
   font-size:24px;
@@ -806,5 +882,9 @@ h2{
       display:none;
     }
   }
+}
+.totals{
+  margin-top:30px;
+  text-align:left;
 }
 </style>
