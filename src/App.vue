@@ -17,14 +17,14 @@
         <div class="history-toggle">
           <label class="history-toggle-checkbox">
             <input
-              :checked="current.history"
-              @change="current.history ? changeCurrent('history', false) : changeCurrent('history', true)"
+              :checked="historyState.enable"
+              @change="historyState.enable ? historyState.enable = false : historyState.enable = true"
               type="checkbox"
             >
             <span>Enable history</span>
           </label>
           <button
-            v-if="getHistoryLength() > 1"
+            v-if="historyState.length > 1"
             @click="clearHistory()"
           >Clear history</button>
         </div>
@@ -198,17 +198,19 @@ export default {
     const storage = localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')) : {};
     const history = ref([localStorage.getItem('data')])
     const historyIndex = ref(false)
+    const historyState = ref({
+      enable: true,
+      length: 1
+    })
     const clearHistory = () => {
       history.value = [localStorage.getItem('data')]
       historyIndex.value = false
-    }
-    const getHistoryLength = () => {
-      return history.value.length
+      historyState.value.length = 1
     }
     const keyupHandler = (event) => {
       if (event.ctrlKey && event.code === 'KeyZ') {
-        if(!current.value.history) return;
-        if(getHistoryLength() === 1 || historyIndex.value === 0) return;
+        if(!historyState.value.enable) return;
+        if(history.value.length === 1 || historyIndex.value === 0) return;
         if(historyIndex.value === false){
           historyIndex.value = history.value.length - 1;
         }
@@ -217,7 +219,7 @@ export default {
         update(historyElement)
       }
       if (event.ctrlKey && event.code === 'KeyY') {
-        if(!current.value.history) return;
+        if(!historyState.value.enable) return;
         if(historyIndex.value === history.value.length - 1) return;
         if(historyIndex.value === false) return;
         historyIndex.value++
@@ -246,6 +248,7 @@ export default {
       }
       const json = JSON.stringify(data)
       localStorage.setItem('data', json)
+      if(!historyState.value.enable) return;
       if(historyIndex.value !== false){
         history.value.splice(historyIndex.value + 1, history.value.length)
         historyIndex.value = false
@@ -254,6 +257,7 @@ export default {
         history.value.shift()
       }
       history.value.push(json)
+      historyState.value.length = history.value.length
     }
     const grid = ref(storage.grid ? storage.grid : [])
     const cells = ref(storage.cells ? storage.cells : []);
@@ -483,14 +487,12 @@ export default {
     }
     const colors = ref(colorsArray)
 
-
     const current = storage.current ? ref(storage.current) : ref({
       color: colors.value[0].color,
       colorCount: colors.value[0].count,
       polus: '-',
       visibleFront: true,
       visibleBack: true,
-      history: true
     });
     const changeCurrent = (name, value) => {
       current.value[name] = value;
@@ -728,7 +730,7 @@ export default {
       getTotalInfo,
       getGridSize,
       removeBusbars,
-      getHistoryLength,
+      historyState,
       clearHistory
     }
   }
