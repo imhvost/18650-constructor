@@ -118,7 +118,7 @@
     <div class="grids">
       <section class="grids-section">
         <h2 class="title">
-          <span>Back Side <i>({{getGridSize().width}}/{{getGridSize().height}})</i></span>
+          <span>Back Side <i>({{getGridSize().width}}x{{getGridSize().height}})</i></span>
           <button @click="current.visibleBack ? changeCurrent('visibleBack', false) : changeCurrent('visibleBack', true)">
             <template v-if="current.visibleBack">hide</template>
             <template v-else>show</template>
@@ -140,7 +140,7 @@
       </section>
       <section class="grids-section">
         <h2 class="title">
-          <span>Front Side <i>({{getGridSize().width}}/{{getGridSize().height}})</i></span>
+          <span>Front Side <i>({{getGridSize().width}}x{{getGridSize().height}})</i></span>
           <button @click="current.visibleFront ? changeCurrent('visibleFront', false) : changeCurrent('visibleFront', true)">
             <template v-if="current.visibleFront">hide</template>
             <template v-else>show</template>
@@ -621,8 +621,7 @@ export default {
     }
     const urlParams = new URLSearchParams(window.location.search);
     const demo = urlParams.get('demo');
-    if(demo === '1') getDemoData();
-    if(demo === '2') getDemoData('2.json');
+    getDemoData(demo);
 
     return {
       cells,
@@ -692,6 +691,11 @@ input{
   font-weight:700;
   span{
     margin-right:10px;
+    i{
+      font-weight:400;
+      font-style:normal;
+      font-size:14px;
+    }
   }
   button{
     font-weight:400;
