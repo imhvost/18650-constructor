@@ -14,6 +14,20 @@
         </label>
         <button @click="getDemoData()">Get Demo Data</button>
         <a href="https://github.com/imhvost/18650-constructor" target="_blanh">Github</a>
+        <div class="history-toggle">
+          <label class="history-toggle-checkbox">
+            <input
+              :checked="current.history"
+              @change="current.history ? changeCurrent('history', false) : changeCurrent('history', true)"
+              type="checkbox"
+            >
+            <span>Enable history</span>
+          </label>
+          <button
+            v-if="getHistoryLength() > 1"
+            @click="clearHistory()"
+          >Clear history</button>
+        </div>
       </div>
       <div class="battery">
         <h2 class="title">Battery</h2>
@@ -41,10 +55,17 @@
           class="totals">
           <div
             v-if="getTotalInfo().busbars"
-            class="total">Total busbars: <b>{{getTotalInfo().busbars}}</b></div>
+            class="total"
+          >
+            Total busbars: <b>{{getTotalInfo().busbars}}</b>
+          </div>
           <div
             v-if="getTotalInfo().mustaches"
-            class="total">Total mustaches: <b>{{getTotalInfo().mustaches}}</b></div>
+            class="total"
+          >
+            Total mustaches: <b>{{getTotalInfo().mustaches}}</b>
+          </div>
+          <button @click="removeBusbars()">Remove busbars</button>
         </div>
       </div>
       <div class="colors">
@@ -175,6 +196,45 @@ export default {
   setup() {
     // localStorage.clear();
     const storage = localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')) : {};
+    const history = ref([localStorage.getItem('data')])
+    const historyIndex = ref(false)
+    const clearHistory = () => {
+      history.value = [localStorage.getItem('data')]
+      historyIndex.value = false
+    }
+    const getHistoryLength = () => {
+      return history.value.length
+    }
+    const keyupHandler = (event) => {
+      if (event.ctrlKey && event.code === 'KeyZ') {
+        if(!current.value.history) return;
+        if(getHistoryLength() === 1 || historyIndex.value === 0) return;
+        if(historyIndex.value === false){
+          historyIndex.value = history.value.length - 1;
+        }
+        historyIndex.value--
+        const historyElement = history.value[historyIndex.value]
+        update(historyElement)
+      }
+      if (event.ctrlKey && event.code === 'KeyY') {
+        if(!current.value.history) return;
+        if(historyIndex.value === history.value.length - 1) return;
+        if(historyIndex.value === false) return;
+        historyIndex.value++
+        const historyElement = history.value[historyIndex.value]
+        update(historyElement)
+      }
+      function update(historyElement){
+        if(!historyElement) return;
+        historyElement = JSON.parse(historyElement)
+        cells.value = historyElement.cells
+        colors.value = historyElement.colors
+        battery.value = historyElement.battery
+        grid.value = historyElement.grid
+        current.value = historyElement.current
+      }
+    }
+    document.addEventListener('keyup', keyupHandler)
 
     const updateStorage = () => {
       const data = {
@@ -184,7 +244,16 @@ export default {
         grid: grid.value,
         current: current.value
       }
-      localStorage.setItem('data', JSON.stringify(data))
+      const json = JSON.stringify(data)
+      localStorage.setItem('data', json)
+      if(historyIndex.value !== false){
+        history.value.splice(historyIndex.value + 1, history.value.length)
+        historyIndex.value = false
+      }
+      if(history.value.length === 10000){
+        history.value.shift()
+      }
+      history.value.push(json)
     }
     const grid = ref(storage.grid ? storage.grid : [])
     const cells = ref(storage.cells ? storage.cells : []);
@@ -193,6 +262,8 @@ export default {
       p: 5
     })
     const createGrid = (cols = Number(battery.value.s), rows = Number(battery.value.p)) => {
+      const confirm = window.confirm('Are you sure?')
+      if(!confirm) return;
       const accumulators = cols * rows;
       if(!accumulators) return
       const areas = [];
@@ -213,21 +284,22 @@ export default {
       current.value.colorCount = rows
       creatCells()
     }
+    const busbars = {
+      normal: {
+        positions: [],
+        mustaches: []
+      },
+      reverse: {
+        positions: [],
+        mustaches: []
+      }
+    }
     const getCell = (gridArea) => {
       return {
         color: '',
         index: '',
         polus: '',
-        busbars: {
-          normal: {
-            positions: [],
-            mustaches: []
-          },
-          reverse: {
-            positions: [],
-            mustaches: []
-          }
-        },
+        busbars: busbars,
         gridArea: gridArea
       }
     }
@@ -417,7 +489,8 @@ export default {
       colorCount: colors.value[0].count,
       polus: '-',
       visibleFront: true,
-      visibleBack: true
+      visibleBack: true,
+      history: true
     });
     const changeCurrent = (name, value) => {
       current.value[name] = value;
@@ -524,6 +597,15 @@ export default {
       updateStorage();
     }
 
+    const removeBusbars = () => {
+      const confirm = window.confirm('Are you sure?')
+      if(!confirm) return;
+      cells.value.forEach(el => {
+        el.busbars = busbars
+      })
+      updateStorage();
+    }
+
     const getTotalInfo = () => {
       let busbars = 0;
       let mustaches = 0;
@@ -621,7 +703,9 @@ export default {
     }
     const urlParams = new URLSearchParams(window.location.search);
     const demo = urlParams.get('demo');
-    getDemoData(demo);
+    if(demo){
+      getDemoData(demo);
+    }
 
     return {
       cells,
@@ -642,7 +726,10 @@ export default {
       importFromJSON,
       getDemoData,
       getTotalInfo,
-      getGridSize
+      getGridSize,
+      removeBusbars,
+      getHistoryLength,
+      clearHistory
     }
   }
 }
@@ -670,6 +757,9 @@ button{
   border:solid 1px #ccc;
   background-color:#f0f0f0;
   font:inherit;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
 }
 input{
   display:block;
@@ -890,5 +980,32 @@ h2{
 .totals{
   margin-top:30px;
   text-align:left;
+  button{
+    font-size:12px;
+    font-weight:400;
+    margin-top:15px;
+  }
+}
+.history-toggle{
+  align-items:center;
+  font-size:14px;
+  margin-top:auto;
+  padding-top:15px;
+  input{
+    margin-right:10px;
+  }
+  button{
+    font-size:12px;
+    margin-right:10px;
+  }
+}
+.history-toggle-checkbox{
+  display:flex;
+  align-items:center;
+  cursor:pointer;
+  margin-right:10px;
+  input{
+    margin-right:5px;
+  }
 }
 </style>
