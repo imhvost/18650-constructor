@@ -136,7 +136,10 @@
         </div>
       </div>
     </section>
-    <div class="grids">
+    <div 
+      v-if="cells[0]"
+      class="grids"
+    >
       <section class="grids-section">
         <h2 class="title">
           <span>Back Side <i>({{getGridSize().width}}x{{getGridSize().height}})</i></span>
@@ -266,8 +269,10 @@ export default {
       p: 5
     })
     const createGrid = (cols = Number(battery.value.s), rows = Number(battery.value.p)) => {
-      const confirm = window.confirm('Are you sure?')
-      if(!confirm) return;
+      if(grid.value[0]){
+        const confirm = window.confirm('Are you sure?')
+        if(!confirm) return;
+      }
       const accumulators = cols * rows;
       if(!accumulators) return
       const areas = [];
@@ -288,14 +293,16 @@ export default {
       current.value.colorCount = rows
       creatCells()
     }
-    const busbars = {
-      normal: {
-        positions: [],
-        mustaches: []
-      },
-      reverse: {
-        positions: [],
-        mustaches: []
+    const  getBusbarsObject = () => {
+      return {
+        normal: {
+          positions: [],
+          mustaches: []
+        },
+        reverse: {
+          positions: [],
+          mustaches: []
+        }
       }
     }
     const getCell = (gridArea) => {
@@ -303,7 +310,7 @@ export default {
         color: '',
         index: '',
         polus: '',
-        busbars: busbars,
+        busbars: getBusbarsObject(),
         gridArea: gridArea
       }
     }
@@ -328,6 +335,9 @@ export default {
       return areas;
     }
     const getGridSize = () => {
+      if(!grid.value[0]){
+        return {}
+      }
       return {
         width: grid.value[0].length,
         height: grid.value.length
@@ -603,7 +613,7 @@ export default {
       const confirm = window.confirm('Are you sure?')
       if(!confirm) return;
       cells.value.forEach(el => {
-        el.busbars = busbars
+        el.busbars = getBusbarsObject()
       })
       updateStorage();
     }
