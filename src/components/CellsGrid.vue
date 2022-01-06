@@ -277,6 +277,8 @@ export default {
     margin:2px;
     font-size:1.25rem;
     line-height:1;
+    background-color:green;
+    color:#fff;
   }
 }
 .grid-btns-top,

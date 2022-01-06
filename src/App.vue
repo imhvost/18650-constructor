@@ -1,18 +1,35 @@
 <template>
   <div class="page">
-    <h1 class="title">18650 Constructor</h1>
+    <ul class="lang-select">
+      <li :class="locale === 'en' ? 'active' : ''">
+        <a
+          href="#"
+          @click.prevent="changeLocale('en')">🇬🇧</a>
+      </li>
+      <li :class="locale === 'ru' ? 'active' : ''">
+        <a
+          href="#"
+          @click.prevent="changeLocale('ru')">🇷🇺</a>
+      </li>
+      <li :class="locale === 'ua' ? 'active' : ''">
+        <a
+          href="#"
+          @click.prevent="changeLocale('ua')">🇺🇦</a>
+      </li>
+    </ul>
+    <h1 class="title">{{$t('header.title')}}</h1>
     <section class="settings">
       <div class="settings-btns">
-        <button @click="saveAsJSON()">Save As JSON</button>
+        <button @click="saveAsJSON()">{{$t('settings.save')}}</button>
         <label class="file-label">
           <input
             type="file"
             accept="application/json, .json"
             @change="importFromJSON($event)"
           >
-          <span>Import from JSON file</span>
+          <span>{{$t('settings.import')}}</span>
         </label>
-        <button @click="getDemoData()">Get Demo Data</button>
+        <button @click="getDemoData()">{{$t('settings.demo')}}</button>
         <a href="https://github.com/imhvost/18650-constructor" target="_blanh">Github</a>
         <div class="history-toggle">
           <label class="history-toggle-checkbox">
@@ -21,22 +38,22 @@
               @change="historyState.enable ? historyState.enable = false : historyState.enable = true"
               type="checkbox"
             >
-            <span>Enable history</span>
+            <span>{{$t('settings.history')}}</span>
           </label>
           <button
             v-if="historyState.length > 1"
             @click="clearHistory()"
-          >Clear history</button>
+          >{{$t('settings.clearHistory')}}</button>
         </div>
       </div>
       <div class="battery">
-        <h2 class="title">Battery</h2>
+        <h2 class="title">{{$t('settings.battery')}}</h2>
         <div class="battery-inputs">
           <label>
             <input
               type="number"
               v-model="battery.s"
-              placeholder="Successively"
+              placeholder="{{$t('settings.s')}}"
             >
             <span>s</span>
           </label>
@@ -44,12 +61,12 @@
             <input
               type="number"
               v-model="battery.p"
-              placeholder="Parallel"
+              placeholder="{{$t('settings.p')}}"
             >
             <span>p</span>
           </label>
         </div>
-        <button @click="createGrid()">Create New grid</button>
+        <button @click="createGrid()">{{$t('settings.createGrid')}}</button>
         <div
           v-if="getTotalInfo()"
           class="totals">
@@ -57,19 +74,19 @@
             v-if="getTotalInfo().busbars"
             class="total"
           >
-            Total busbars: <b>{{getTotalInfo().busbars}}</b>
+            {{$t('settings.totalBusbars')}}: <b>{{getTotalInfo().busbars}}</b>
           </div>
           <div
             v-if="getTotalInfo().mustaches"
             class="total"
           >
-            Total mustaches: <b>{{getTotalInfo().mustaches}}</b>
+            {{$t('settings.totalMustaches')}}: <b>{{getTotalInfo().mustaches}}</b>
           </div>
-          <button @click="removeBusbars()">Remove busbars</button>
+          <button @click="removeBusbars()">{{$t('settings.removeBusbars')}}</button>
         </div>
       </div>
       <div class="colors">
-        <h2 class="title">Elements Colors</h2>
+        <h2 class="title">{{$t('settings.colors')}}</h2>
         <ul class="colors-list">
           <li
             v-for="(colorItem, index) in colors"
@@ -89,10 +106,10 @@
         </ul>
         <button
           class="change-colors-btn"
-          @click="changeColors()">Change colors</button>
+          @click="changeColors()">{{$t('settings.changeColors')}}</button>
       </div>
       <div class="instruction">
-        <h2 class="title">Instruction</h2>
+        <h2 class="title">{{$t('instruction.title')}}</h2>
         <div class="instruction-item">
           <div class="cell">
             <div class="cell-body">
@@ -100,10 +117,10 @@
             </div>
           </div>
           <div class="instruction-item-desc">
-            <p class="instruction-item-title">Cell:</p>
-            <p><b>Left click</b> - select / change polus</p>
-            <p><b>Right click</b> - remove</p>
-            <p><b>Drag and drop</b> - reposition</p>
+            <p class="instruction-item-title">{{$t('instruction.cell.title')}}:</p>
+            <p v-html="$t('instruction.cell.p[0]')"></p>
+            <p v-html="$t('instruction.cell.p[1]')"></p>
+            <p v-html="$t('instruction.cell.p[2]')"></p>
           </div>
         </div>
         <div class="instruction-item">
@@ -114,9 +131,9 @@
             </div>
           </div>
           <div class="instruction-item-desc">
-            <p class="instruction-item-title">Bus:</p>
-            <p><b>Left click</b> - select / close</p>
-            <p><b>Right click</b> - remove</p>
+            <p class="instruction-item-title">{{$t('instruction.bus.title')}}:</p>
+            <p v-html="$t('instruction.bus.p[0]')"></p>
+            <p v-html="$t('instruction.bus.p[1]')"></p>
           </div>
         </div>
         <div class="instruction-item">
@@ -130,8 +147,8 @@
             </div>
           </div>
           <div class="instruction-item-desc">
-            <p class="instruction-item-title">Mustache:</p>
-            <p><b>Left click</b> - add / remove</p>
+            <p class="instruction-item-title">{{$t('instruction.mustache.title')}}:</p>
+            <p v-html="$t('instruction.mustache.p[0]')"></p>
           </div>
         </div>
       </div>
@@ -142,10 +159,10 @@
     >
       <section class="grids-section">
         <h2 class="title">
-          <span>Back Side <i>({{getGridSize().width}}x{{getGridSize().height}})</i></span>
+          <span>{{$t('grid.back')}} <i>({{getGridSize().width}}x{{getGridSize().height}})</i></span>
           <button @click="current.visibleBack ? changeCurrent('visibleBack', false) : changeCurrent('visibleBack', true)">
-            <template v-if="current.visibleBack">hide</template>
-            <template v-else>show</template>
+            <template v-if="current.visibleBack">{{$t('grid.hide')}}</template>
+            <template v-else>{{$t('grid.show')}}</template>
           </button>
         </h2>
         <cells-grid
@@ -164,10 +181,10 @@
       </section>
       <section class="grids-section">
         <h2 class="title">
-          <span>Front Side <i>({{getGridSize().width}}x{{getGridSize().height}})</i></span>
+          <span>{{$t('grid.front')}} <i>({{getGridSize().width}}x{{getGridSize().height}})</i></span>
           <button @click="current.visibleFront ? changeCurrent('visibleFront', false) : changeCurrent('visibleFront', true)">
-            <template v-if="current.visibleFront">hide</template>
-            <template v-else>show</template>
+            <template v-if="current.visibleFront">{{$t('grid.hide')}}</template>
+            <template v-else>{{$t('grid.show')}}</template>
           </button>
         </h2>
         <cells-grid
@@ -190,6 +207,7 @@
 <script>
 import { ref } from "vue"
 import CellsGrid from './components/CellsGrid.vue'
+import { useI18n } from 'vue-i18n';
 
 export default {
   name: 'App',
@@ -197,6 +215,7 @@ export default {
     CellsGrid
   },
   setup() {
+    const { t, locale } = useI18n({ useScope: 'global' })
     // localStorage.clear();
     const storage = localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')) : {};
     const history = ref([localStorage.getItem('data')])
@@ -270,7 +289,7 @@ export default {
     })
     const createGrid = (cols = Number(battery.value.s), rows = Number(battery.value.p)) => {
       if(grid.value[0]){
-        const confirm = window.confirm('Are you sure?')
+        const confirm = window.confirm(t('confirm'))
         if(!confirm) return;
       }
       const accumulators = cols * rows;
@@ -610,7 +629,7 @@ export default {
     }
 
     const removeBusbars = () => {
-      const confirm = window.confirm('Are you sure?')
+      const confirm = window.confirm(t('confirm'))
       if(!confirm) return;
       cells.value.forEach(el => {
         el.busbars = getBusbarsObject()
@@ -664,7 +683,7 @@ export default {
       if(!files) return
       const file = files[0]
       if(file.name.split('.')[1] !== 'json'){
-        alert('Not correct file')
+        alert(t('errors.file'))
         return
       }
       const reader = new FileReader()
@@ -674,7 +693,7 @@ export default {
         try{
           data = JSON.parse(event.target.result)
         }catch(e){
-          alert('Not correct file')
+          alert(t('errors.file'))
           return
         }
         if(data.cells && Array.isArray(data.cells)){
@@ -719,6 +738,15 @@ export default {
       getDemoData(demo);
     }
 
+    const changeLocale = lang => {
+      locale.value = lang
+      localStorage.setItem('locale', lang)
+    }
+
+    if(localStorage.getItem('locale')){
+      changeLocale(localStorage.getItem('locale'))
+    }
+
     return {
       cells,
       colors,
@@ -741,7 +769,9 @@ export default {
       getGridSize,
       removeBusbars,
       historyState,
-      clearHistory
+      clearHistory,
+      changeLocale,
+      locale
     }
   }
 }
@@ -785,7 +815,7 @@ input{
   -moz-osx-font-smoothing:grayscale;
   text-align:center;
   color:#181818;
-  padding:30px 15px;
+  padding:20px 15px;
 }
 .title{
   text-align:center;
@@ -805,7 +835,10 @@ input{
   }
 }
 h1{
-  font-size:24px;
+  font-size:32px;
+}
+h1.title{
+  margin-bottom:20px;
 }
 h2{
   font-size:18px;
@@ -822,7 +855,7 @@ h2{
   margin-bottom:30px;
 }
 .settings-btns{
-  width:130px;
+  width:175px;
   display:flex;
   flex-direction:column;
   &>*:not(:last-child){
@@ -926,7 +959,7 @@ h2{
 }
 .instruction{
   margin-left:30px;
-  width:300px;
+  width:350px;
   text-align:left;
 }
 .instruction-item{
@@ -1019,5 +1052,29 @@ h2{
   input{
     margin-right:5px;
   }
+}
+.lang-select{
+  display:flex;
+  list-style:none;
+  justify-content:center;
+  margin:0 -6px 10px;
+  li{
+    padding:0 6px;
+  }
+  a{
+    font-weight:700;
+    color:inherit;
+    text-decoration:none;
+  }
+  .active{
+    a{
+      text-decoration:underline;
+    }
+  }
+}
+.instruction-item-title{
+  font-weight:700;
+  font-size:16px;
+  margin-bottom:2px;
 }
 </style>
