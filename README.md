@@ -5,4 +5,4 @@ It is supposed to be soldered through the "bus" and "mustaches".
 SPA (Vue.js)
 
 ## Example
-http://18650-constructor.imhvost.top/
+https://18650-constructor.imhvost.top/
