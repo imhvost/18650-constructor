@@ -4,17 +4,17 @@
       <li :class="locale === 'en' ? 'active' : ''">
         <a
           href="#"
-          @click.prevent="changeLocale('en')">🇬🇧</a>
+          @click.prevent="changeLocale('en')">EN</a>
       </li>
       <li :class="locale === 'ru' ? 'active' : ''">
         <a
           href="#"
-          @click.prevent="changeLocale('ru')">🇷🇺</a>
+          @click.prevent="changeLocale('ru')">RU</a>
       </li>
       <li :class="locale === 'ua' ? 'active' : ''">
         <a
           href="#"
-          @click.prevent="changeLocale('ua')">🇺🇦</a>
+          @click.prevent="changeLocale('ua')">UA</a>
       </li>
     </ul>
     <h1 class="title">{{$t('header.title')}}</h1>
